@@ -747,7 +747,7 @@ int main(int argc, char *argv[]){
 
 		if(client_sockMsg < 0){
 			printf("server error: unable to accept MSG connection\n");
-		}else{
+		} else {
 			/////////////
 			read(client_sockMsg, checkMsg, 100);
 			printf("client_sockMsg %s\n", checkMsg);
