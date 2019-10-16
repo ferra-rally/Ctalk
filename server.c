@@ -448,7 +448,7 @@ red10:
 			}
 			else if(strcmp(buffer, "close")) {
 
-				sprintf(temp, "Command not recognised");
+				sprintf(temp, "Command not recognised\n");
 				write(self->sockCmd, temp, strlen(temp));
 
 			}
@@ -611,7 +611,14 @@ red0:
 				write(aux -> sockCmd, text, strlen(text));
 				
 				opFile.sem_op = 1;
-				semop(semFile, &opFile, 0);
+goup:				ret=semop(semFile, &opFile, 1);
+				if(ret==-1){
+					if(errno!=EINTR){
+						printf("semop error\n");
+						pthread_exit((void *)0);
+					}
+					if(errno==EINTR)goto goup;
+				}
 			} else {
 				/*
 				* opFile.sem_op = -1;
@@ -624,7 +631,14 @@ red0:
 				printf("Written line %s %s\n", aux -> username, aux -> pass);
 
 				opFile.sem_op = 1;
-				semop(semFile, &opFile, 0);
+goup0:				ret=semop(semFile, &opFile, 1);
+				if(ret==-1){
+					if(errno!=EINTR){
+						printf("semop error\n");
+						pthread_exit((void*)0);
+					}
+					if(errno==EINTR) goto goup0;
+				}
 
 				sprintf(text, "Registered correctly\n");
 				write(aux -> sockCmd, text, strlen(text));
