@@ -52,7 +52,6 @@ struct user *findTarget(char *name){
 	struct user *aux=list;
 
 	while(aux!=NULL){
-
 		if(strcmp(name,aux->username)==0){
 			return aux;
 		}
@@ -88,7 +87,7 @@ void printUsers(int sockCmd){	// function used to print all users connected to t
 	sprintf(temp, "*******Connected Users*******\n");
 	write(sockCmd, temp, strlen(temp));
 	while(aux -> next != NULL){
-		sprintf(temp, "Name: %s, socket MSG: %d,state: %d\n", aux -> username, aux -> sockMsg,aux -> state); //ADDED USERN AND ANOTHER SOCKET
+		sprintf(temp, "Name: %s, socket MSG: %d, state: %d\n", aux -> username, aux -> sockMsg,aux -> state); //ADDED USERN AND ANOTHER SOCKET
 		write(sockCmd, temp, strlen(temp));//WRITE ON SOCKET CMD
 		aux = aux -> next;
 	}
@@ -125,7 +124,6 @@ void removeUser(struct user **head, char *name){ // function used to remove a us
 	// removing user from the list
 
 	if(strcmp((*head)->username,name)==0){ //CONTROL NAME
-		printf("found at the beginning\n");
 		prec = *head;
 		*head = (*head) -> next;
 		close(prec->sockMsg);  
@@ -139,7 +137,6 @@ void removeUser(struct user **head, char *name){ // function used to remove a us
 	while(aux != NULL){
 		succ = aux -> next;
 		if(strcmp(/*(*head)*/aux->username,name)==0){ //CONTROL NAME
-			printf("found in the middle\n");
 			close(aux->sockCmd);	// closing Command socket
 			close(aux->sockMsg);    // closing Message socket
 			free(aux);	// freeing memory
@@ -183,13 +180,15 @@ void changeState(char *name, int newState){	// function used to set state of a t
 }
 
 void interupt_handler(int signo){	// handler of SIGINT
-
+	char quit[5];
 	struct user *aux, *temp;
 	aux = list;
 
+	sprintf(quit, "quit");
+
 	// closing all the sockets and freeing memory
 	while(aux != NULL){
-
+		write(aux -> sockCmd, quit, strlen(quit));
 		close(aux -> sockMsg);
 		close(aux -> sockCmd); //CLOSE OTHER SOCKET
 		temp = aux;
@@ -271,7 +270,7 @@ void *client_CMDhandler( void *x){	// function used to manage user cmd
 	op.sem_num = 0;
 	op.sem_flg = 0;
 
-	sprintf(temp, "Connected with name %s,MSG socket %d,CMD socket %d\ntype help for help\n", self->username, self->sockMsg, self->sockCmd);
+	sprintf(temp, "Connected with name %s, MSG socket %d, CMD socket %d\ntype help for help\n", self->username, self->sockMsg, self->sockCmd);
 	write(self->sockCmd, temp, strlen(temp));
 
 	while(1){	// main loop
@@ -311,7 +310,6 @@ red2:
 				write(self->sockCmd, temp, strlen(temp)); //CHANGE PARAM
 
 			} else if(strncmp(buffer, "connect ", 8) == 0 && strlen(buffer) > 8){	// user requested connection to another user
-				printf("logged\n");
 				strtok(buffer, " ");
 				strcpy(targetName, strtok(NULL, " ")); // finding the target of the user
 				printf("traget name %s\n", targetName);
@@ -329,7 +327,6 @@ red7:
 
 					if(self->state == 0){  //CHECK IF I AM FREE
 						if(freeUser(targetName)){      //CHECK IF MY TARGET IS FREE
-							printf("entrato1.0\n");
 							self->target = findTarget(targetName);
 							self->state = 1;
 							self->target->state = 1;
@@ -394,9 +391,9 @@ red3:
 					removeUser(&list, self->username); // remove user from the list of users CHANGE PARAM
 					printf("eliminated\n");
 				}
-				op.sem_op=1;
+				op.sem_op = 1;
 red4:
-				ret=semop(semList, &op, 1);
+				ret = semop(semList, &op, 1);
 				if(ret == -1){
 					if(errno == EINTR) goto red4;
 					if(errno != EINTR) exit(-1);
@@ -442,7 +439,7 @@ red9:
 
 				op.sem_op = 1;
 red10:
-				ret=semop(semList, &op, 1);
+				ret = semop(semList, &op, 1);
 				if(ret == 1){
 					if(errno == EINTR) goto red10;
 					if(errno != EINTR) exit(-1);
@@ -569,13 +566,13 @@ red:
 						printf("Unable to spawn MSG handler\n");
 						pthread_exit((void *) -1);
 					}
-				}
-				else{
+				} else {
 					sprintf(text, "already logged\n");
 					write(aux -> sockCmd, text, strlen(text));
 					close(aux -> sockCmd);
 					free(aux);
 				}
+
 				op.sem_op = 1;
 red0:
 				ret = semop(semList, &op, 1);
@@ -586,16 +583,13 @@ red0:
 						exit(-1);
 					}
 				}    	
-			}
-			else{
+			} else {
 				sprintf(text, "wrong username/password\n");
 				write(aux -> sockCmd, text, MAXLINE);
 				free(aux);
 			}
 			pthread_exit((void *) 0);
-		}
-
-		else if(strcmp(text, "reg") == 0){
+		} else if(strcmp(text, "reg") == 0) {
 
 			read(aux -> sockCmd, aux -> username, 100);
 			printf("reg username %s\n", aux -> username);
@@ -604,19 +598,25 @@ red0:
 			printf("red password %s\n", aux -> pass);
 
 			opFile.sem_op = -1;
-			semop(semFile, &opFile, 0);
+			ret = semop(semFile, &opFile, 0);
 
 			result = checkUsername(aux -> username);
-
-			opFile.sem_op = 1;
-			semop(semFile, &opFile, 0);
-
+			// Forse qualche comportamento strano
+			/*
+			* opFile.sem_op = 1;
+			* semop(semFile, &opFile, 0);
+			*/
 			if(result){
 				sprintf(text, "Username not available\n");
 				write(aux -> sockCmd, text, strlen(text));
-			} else {
-				opFile.sem_op = -1;
+				
+				opFile.sem_op = 1;
 				semop(semFile, &opFile, 0);
+			} else {
+				/*
+				* opFile.sem_op = -1;
+				* semop(semFile, &opFile, 0);
+				*/
 
 				fseek(f, 0, SEEK_END);
 				fprintf(f, "%s %s\n", aux -> username, aux -> pass);
@@ -632,13 +632,12 @@ red0:
 
 		} else if(strcmp(text, "quit") == 0) {
 
-			printf("quitting\n");
-
 			close(aux->sockMsg);
 			close(aux->sockCmd);
 			free(aux);
 
 			pthread_exit((void *)0);
+
 		} else printf("Not recognised\n");
 	}
 }

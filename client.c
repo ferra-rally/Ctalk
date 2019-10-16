@@ -28,15 +28,6 @@ void handler(int signo){
 }
 
 unsigned long hash(unsigned char *str){
-	/*
-	unsigned long hash = 5381;
-	int c;
-
-	while(c = *str++){
-		hash = ((hash << 5) + hash) + 5;
-	}
-	return hash;*/
-
 	unsigned int result = 5381;
 	unsigned char *p;
 
@@ -86,12 +77,15 @@ void *readerCmd(void *param){	// thread used to recieve from the server
 		if(ret > 0 && strncmp(buffer, "change", 6) != 0){
 			printf("%s",buffer);
 		}
-		else if(ret==-1){
+		else if(ret == -1){
 			exit(EXIT_FAILURE);
 		}
 		if(strncmp(buffer,"change",6)==0){
 			chat=0;
 			printf("user disconnected\n");
+		} else if(strncmp(buffer, "quit", 4) == 0){
+			printf("Server shutdown\nexiting\n");
+			exit(0);
 		}
 	}
 }
