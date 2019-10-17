@@ -257,7 +257,7 @@ int checkUsername(char *username){
 }
 
 
-void close(int code, struct user *aux){
+void closer(struct user *aux){
 	char temp[100];
 	sprintf(temp, "quit");
 
@@ -294,10 +294,14 @@ void *client_CMDhandler( void *x){	// function used to manage user cmd
 
 				op.sem_op = -1;
 red1:
-				ret=semop(semList,&op,1);
+				ret = semop(semList ,&op, 1);
 				if(ret == -1){
 					if(errno == EINTR) goto red1;
-					if(errno != EINTR) exit(-1);
+					if(errno != EINTR){
+						closer(self);
+						pthread_exit((void *) -1);
+					}
+					
 				}
 
 				printUsers(self->sockCmd); 	//CHANGE PARAM
@@ -307,7 +311,10 @@ red2:
 				ret = semop(semList, &op, 1);
 				if(ret == -1){
 					if(errno == EINTR) goto red2;
-					if(errno != EINTR) exit(-1);
+					if(errno != EINTR){
+						closer(self);
+						pthread_exit((void *) -1);
+					}
 				} 	
 
 
@@ -330,7 +337,10 @@ red7:
 					ret=semop(semList, &op, 1);
 					if(ret == -1){
 						if(errno == EINTR) goto red7;
-						if(errno != EINTR) exit(-1);
+						if(errno != EINTR){
+							closer(self);
+							pthread_exit((void *) -1);
+						}
 					} 
 
 					if(self->state == 0){  //CHECK IF I AM FREE
@@ -369,7 +379,10 @@ red8:
 					ret = semop(semList, &op, 1);
 					if(ret == -1){
 						if(errno == EINTR) goto red8;
-						if(errno != EINTR) exit(-1);
+						if(errno != EINTR){
+							closer(self);
+							pthread_exit((void *) -1);
+						}
 					} 	
 				}		
 
@@ -382,7 +395,10 @@ red3:
 				ret=semop(semList, &op ,1);
 				if(ret == -1){
 					if(errno == EINTR) goto red3;
-					if(errno != EINTR) exit(-1);
+					if(errno != EINTR){
+						closer(self);
+						pthread_exit((void *) -1);
+					}
 				} 
 
 
@@ -404,7 +420,10 @@ red4:
 				ret = semop(semList, &op, 1);
 				if(ret == -1){
 					if(errno == EINTR) goto red4;
-					if(errno != EINTR) exit(-1);
+					if(errno != EINTR){
+						closer(self);
+						pthread_exit((void *) -1);
+					}
 				}
 				pthread_exit((void *)0);         //closing managment thread  
 
@@ -414,7 +433,10 @@ red5:
 				ret = semop(semList, &op, 1);
 				if(ret == -1){
 					if(errno == EINTR) goto red5;
-					if(errno != EINTR) exit(-1);
+					if(errno != EINTR){
+						closer(self);
+						pthread_exit((void *) -1);
+					}
 				}
 
 				printAvailableUsers(self->sockCmd, self->username); // print users with state equal to 1 //CHANGE PARAM
@@ -423,7 +445,10 @@ red6:
 				ret = semop(semList, &op, 1);
 				if(ret == -1){
 					if(errno == EINTR) goto red6;
-					if(errno != EINTR) exit(-1);
+					if(errno != EINTR){
+						closer(self);
+						pthread_exit((void *) -1);
+					}
 				}
 			} else if(strcmp(buffer, "close") == 0){
 				op.sem_op = -1;
@@ -431,7 +456,10 @@ red9:
 				ret = semop(semList, &op, 1);
 				if(ret == -1){
 					if(errno == EINTR) goto red9;
-					if(errno != EINTR) exit(-1);
+					if(errno != EINTR){
+						closer(self);
+						pthread_exit((void *) -1);
+					}
 				} 
 
 				if(self->state == 1){
