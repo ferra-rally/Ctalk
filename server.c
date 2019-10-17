@@ -813,10 +813,10 @@ int main(int argc, char *argv[]){
 		if(client_sockMsg < 0){
 			printf("server error: unable to accept MSG connection\n");
 		} else {
-			/////////////
+
 			read(client_sockMsg, checkMsg, 100);
 			printf("client_sockMsg %s\n", checkMsg);
-			/////////////
+
 			if(strcmp("sockCmd", checkCmd) == 0 && strcmp("sockMsg", checkMsg) == 0){
 				ret = 0;
 				printf("MSG socket accepted\n");
@@ -825,6 +825,10 @@ int main(int argc, char *argv[]){
 			} else {
 				ret = 1;
 				sprintf(text, "\nerror: sockets do not match\n");
+				write(client_sockCmd, text, strlen(text));
+				write(client_sockMsg, text, strlen(text));
+
+				sprintf(text, "quit");
 				write(client_sockCmd, text, strlen(text));
 				write(client_sockMsg, text, strlen(text));
 
