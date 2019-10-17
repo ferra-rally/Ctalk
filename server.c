@@ -185,7 +185,6 @@ void interupt_handler(int signo){	// handler of SIGINT
 	aux = list;
 
 	sprintf(quit, "quit");
-
 	// closing all the sockets and freeing memory
 	while(aux != NULL){
 		write(aux -> sockCmd, quit, strlen(quit));
@@ -257,6 +256,15 @@ int checkUsername(char *username){
 	return find;
 }
 
+
+void close(int code, struct user *aux){
+	char temp[100];
+	sprintf(temp, "quit");
+
+	write(aux -> sockCmd, temp, strlen(temp));
+	removeUser(&list, aux -> username);
+	//pthread_exit((void *) code);
+}
 
 // void *x -> user structure
 void *client_CMDhandler( void *x){	// function used to manage user cmd
@@ -580,7 +588,7 @@ red0:
 					if(errno == EINTR) goto red0;
 					if(errno != EINTR){
 						printf("semop error\n");
-						exit(-1);
+						pthread_exit((void *)-1);
 					}
 				}    	
 			} else {
