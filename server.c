@@ -34,10 +34,9 @@ FILE *f;
 
 
 // struct user **head -> head of the list
-// char *ip -> new user ip
-// int socket -> socket of the new user
-//AGGIUNTO PARAMETRI
-struct user *addUser(struct user **head, struct user *temp){	// function used to add a user to the list ADDED PASS USER SOCK CMD
+// struct user *temp -> new user struct
+// function used to add a user to the list ADDED PASS USER SOCK CMD
+struct user *addUser(struct user **head, struct user *temp){	
 	struct user *aux = temp;
 	aux -> state = 0;	// setting user state to free
 	aux -> next = *head;	// inserting user to the top of the list
@@ -46,7 +45,8 @@ struct user *addUser(struct user **head, struct user *temp){	// function used to
 	return aux;
 }
 
-//return pointer of the target
+// char *name -> target name
+// return pointer of the target
 struct user *findTarget(char *name){
 
 	struct user *aux=list;
@@ -61,24 +61,26 @@ struct user *findTarget(char *name){
 	return NULL;
 }
 
-//change target of name in tar
+// char *name -> name of the target
+// change target of name in tar
 void changeTarget(char *name,struct user *tar){
 
-	struct user *aux=list;
+	struct user *aux = list;
 
-	while(aux!=NULL){
+	while(aux != NULL){
 
-		if(strcmp(aux->username,name)==0){
-			aux->target=tar;
+		if(strcmp(aux -> username, name) == 0){
+			aux -> target = tar;
 			return;
 		}
-		aux=aux->next;
+		aux = aux -> next;
 	}
 
 }
 
 // int socket -> socket of the requesting user
-void printUsers(int sockCmd){	// function used to print all users connected to the server
+// function used to print all users connected to the server
+void printUsers(int sockCmd){
 	struct user *aux;
 	char temp[MAXLINE];
 
@@ -95,8 +97,10 @@ void printUsers(int sockCmd){	// function used to print all users connected to t
 	write(sockCmd, temp, strlen(temp));
 }
 
-// int socket -> socket CMD of the requesting user
-void printAvailableUsers(int sockCmd,char *name){	// function used to print all users with state = 0 NAME ADDED
+// int socket -> socketCMD of the requesting user
+// char *name
+// function used to print all users with state = 0
+void printAvailableUsers(int sockCmd,char *name){
 	struct user *aux;
 	char temp[MAXLINE];
 
@@ -117,8 +121,9 @@ void printAvailableUsers(int sockCmd,char *name){	// function used to print all 
 }
 
 // struct user **head -> head of the list
-// int socket -> socket of the user to remove
-void removeUser(struct user **head, char *name){ // function used to remove a user from the server CONTROL ON NAME NOT SOCKET ID
+// char *name -> name of the user to remove
+// function used to remove a user from the server CONTROL ON NAME NOT SOCKET ID
+void removeUser(struct user **head, char *name){
 	struct user *aux;
 	struct user *prec, *succ;
 	// removing user from the list
@@ -148,7 +153,7 @@ void removeUser(struct user **head, char *name){ // function used to remove a us
 	}
 }
 
-// int socket -> target socket
+// char *name -> name of the user to check
 // function used to check the state of a target user
 int freeUser(char *name){
 	struct user *aux;
@@ -165,7 +170,7 @@ int freeUser(char *name){
 	return 0;
 }
 
-// int socket -> target socket
+// char *name -> name of the target user
 // int newState -> new state
 // function used to set state of a target to newState
 void changeState(char *name, int newState){
@@ -181,6 +186,7 @@ void changeState(char *name, int newState){
 	}
 }
 
+// int signo
 // handler of SIGINT
 void interupt_handler(int signo){
 	char quit[5];
@@ -205,6 +211,7 @@ void interupt_handler(int signo){
 
 }
 
+// char *name -> name of the user to check
 // check if the the user is already logged
 int alreadyLogged(char *name){
 
@@ -220,6 +227,8 @@ int alreadyLogged(char *name){
 	}
 }
 
+// char *username -> username of the user to check
+// char *password -> password of the user to check
 // check if username and password are correct
 int check(char *username,char *password){
 
@@ -241,6 +250,8 @@ int check(char *username,char *password){
 	return find;
 }
 
+// char *username -> username of the user to check
+// function used to check if the username is already used
 int checkUsername(char *username){
 	char user[MAXLINE];
 	int find = 0;
@@ -256,18 +267,20 @@ int checkUsername(char *username){
 	return find;
 }
 
-
+// struct user *aux -> user struct to close
+// function used to close the client
 void closer(struct user *aux){
 	char temp[100];
 	sprintf(temp, "quit");
 
 	write(aux -> sockCmd, temp, strlen(temp));
 	removeUser(&list, aux -> username);
-	//pthread_exit((void *) code);
+	free(aux);
 }
 
 // void *x -> user structure
-void *client_CMDhandler( void *x){	// function used to manage user cmd
+// function used to manage user cmd
+void *client_CMDhandler( void *x){
 	struct user *self = (struct user *) x;
 	char buffer[MAXLINE], temp[MAXLINE], line[MAXLINE];
 	int ret;
@@ -497,9 +510,10 @@ red10:
 
 
 
-
+// void *x -> user structure
+// function that handles the message of a client
 void *client_MSGhandler(void *x){
-	struct user *self=(struct user *)x;
+	struct user *self = (struct user *)x;
 	char line[MAXLINE];
 	char temp[MAXLINE];
 
@@ -519,6 +533,8 @@ void *client_MSGhandler(void *x){
 	}
 }
 
+// void *x -> user structure
+// function used to manage login and register procedures
 void *logThread(void *x){
 	struct user *aux = (struct user *)x;
 	char text[MAXLINE];
@@ -772,14 +788,14 @@ int main(int argc, char *argv[]){
 
 	printf("server started\n");
 
-	// Forse
+
 	fd = open("credenziali.txt", O_RDWR | O_CREAT, 0666);
 	if(fd == -1){
 		printf("open error\n");
 		exit(-1);
 	}	
-	f = fdopen(fd, "w+"); // BISOGNA USARE FSEEK
-	//
+	f = fdopen(fd, "w+");
+	
 	while(1){
 
 		client_sockCmd = accept(server_socket, (struct sockaddr *)&client_addr, &client_len);
@@ -789,10 +805,8 @@ int main(int argc, char *argv[]){
 		}
 		else{
 			printf("CMD socket accepted\n");
-			////////////
 			read(client_sockCmd, checkCmd, 100);
 			printf("client_sockCmd %s\n", checkCmd);
-			////////////
 			sprintf(text,"CMD socket accepted\n");
 			write(client_sockCmd,text,strlen(text));
 
