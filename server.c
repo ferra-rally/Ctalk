@@ -478,7 +478,10 @@ red10:
 				ret = semop(semList, &op, 1);
 				if(ret == 1){
 					if(errno == EINTR) goto red10;
-					if(errno != EINTR) exit(-1);
+					if(errno != EINTR){
+						closer(self);
+						pthread_exit((void *) -1);
+					}
 				}				
 
 			}
@@ -553,6 +556,7 @@ redFile1:
 					printf("semop error\n");
 					close(aux -> sockCmd);
 					close(aux -> sockMsg);
+					free(aux);
 					pthread_exit((void *) -1);
 				}
 			}
@@ -568,6 +572,7 @@ redFile2:
 					printf("semop error\n");
 					close(aux -> sockCmd);
 					close(aux -> sockMsg);
+					free(aux);
 					pthread_exit((void *) -1);
 				}
 			}
@@ -580,10 +585,11 @@ red:
 				if(ret == -1){
 					if(errno == EINTR) goto red;
 					if(errno != EINTR){
-						printf("semop error\n");
-						close(aux -> sockCmd);
-						close(aux -> sockMsg);
-						pthread_exit((void *) 0);
+					printf("semop error\n");
+					close(aux -> sockCmd);
+					close(aux -> sockMsg);
+					free(aux);
+					pthread_exit((void *) -1);
 					}
 
 				}
@@ -615,8 +621,11 @@ red0:
 				if(ret == -1){
 					if(errno == EINTR) goto red0;
 					if(errno != EINTR){
-						printf("semop error\n");
-						pthread_exit((void *)-1);
+					printf("semop error\n");
+					close(aux -> sockCmd);
+					close(aux -> sockMsg);
+					free(aux);
+					pthread_exit((void *) -1);
 					}
 				}    	
 			} else {
@@ -649,9 +658,12 @@ red0:
 				opFile.sem_op = 1;
 goup:				ret=semop(semFile, &opFile, 1);
 				if(ret==-1){
-					if(errno!=EINTR){
-						printf("semop error\n");
-						pthread_exit((void *)0);
+					if(errno != EINTR){
+					printf("semop error\n");
+					close(aux -> sockCmd);
+					close(aux -> sockMsg);
+					free(aux);
+					pthread_exit((void *) -1);
 					}
 					if(errno==EINTR)goto goup;
 				}
@@ -669,10 +681,13 @@ goup:				ret=semop(semFile, &opFile, 1);
 				opFile.sem_op = 1;
 goup0:				ret=semop(semFile, &opFile, 1);
 				if(ret==-1){
-					if(errno!=EINTR){
-						printf("semop error\n");
-						pthread_exit((void*)0);
-					}
+					if(errno != EINTR){
+					printf("semop error\n");
+					close(aux -> sockCmd);
+					close(aux -> sockMsg);
+					free(aux);
+					pthread_exit((void *) -1);
+				}
 					if(errno==EINTR) goto goup0;
 				}
 
