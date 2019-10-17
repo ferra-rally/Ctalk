@@ -16,7 +16,7 @@
 #define MAXLINE 1000	// maximum lenght of a message
 
 struct user{
-	char username[100];	// username AGGIUNTO PARAMETRI MA LEVATO IP
+	char username[100];	// username
 	char pass[100]; //password
 	int sockMsg;	// user socket for msg
 	int sockCmd; //user socket for cmd
@@ -149,7 +149,8 @@ void removeUser(struct user **head, char *name){ // function used to remove a us
 }
 
 // int socket -> target socket
-int freeUser(char *name){	// function used to check the state of a target user
+// function used to check the state of a target user
+int freeUser(char *name){
 	struct user *aux;
 	aux = list;
 
@@ -166,7 +167,8 @@ int freeUser(char *name){	// function used to check the state of a target user
 
 // int socket -> target socket
 // int newState -> new state
-void changeState(char *name, int newState){	// function used to set state of a target to newState
+// function used to set state of a target to newState
+void changeState(char *name, int newState){
 	struct user *aux;
 	aux = list;
 
@@ -179,7 +181,8 @@ void changeState(char *name, int newState){	// function used to set state of a t
 	}
 }
 
-void interupt_handler(int signo){	// handler of SIGINT
+// handler of SIGINT
+void interupt_handler(int signo){
 	char quit[5];
 	struct user *aux, *temp;
 	aux = list;
@@ -189,7 +192,7 @@ void interupt_handler(int signo){	// handler of SIGINT
 	while(aux != NULL){
 		write(aux -> sockCmd, quit, strlen(quit));
 		close(aux -> sockMsg);
-		close(aux -> sockCmd); //CLOSE OTHER SOCKET
+		close(aux -> sockCmd);
 		temp = aux;
 		aux = aux -> next;
 		free(temp);
@@ -202,8 +205,7 @@ void interupt_handler(int signo){	// handler of SIGINT
 
 }
 
-
-//CHECK IF IS ALREADY LOGGED
+// check if the the user is already logged
 int alreadyLogged(char *name){
 
 	struct user *aux;
@@ -218,9 +220,7 @@ int alreadyLogged(char *name){
 	}
 }
 
-
-//CHECK LOGIN
-
+// check if username and password are correct
 int check(char *username,char *password){
 
 	char user[MAXLINE];
@@ -284,7 +284,7 @@ void *client_CMDhandler( void *x){	// function used to manage user cmd
 	while(1){	// main loop
 		memset(buffer, 0, MAXLINE); //reading the command
 		memset(temp, 0, MAXLINE); //reading the command
-		ret = read(self->sockCmd, buffer, MAXLINE); //READ ON SOCK CMD
+		ret = read(self->sockCmd, buffer, MAXLINE);
 
 		if(ret > 0){
 
@@ -304,7 +304,7 @@ red1:
 					
 				}
 
-				printUsers(self->sockCmd); 	//CHANGE PARAM
+				printUsers(self->sockCmd);
 
 				op.sem_op = 1;
 red2:
@@ -322,7 +322,7 @@ red2:
 
 				sprintf(temp, "========================\ntype:\nlist for list of users in the server\nhelp for help\nconnect [username] to connect to the user\nquit to disconnect from the server\navl for available users\n========================\n\n");
 
-				write(self->sockCmd, temp, strlen(temp)); //CHANGE PARAM
+				write(self->sockCmd, temp, strlen(temp));
 
 			} else if(strncmp(buffer, "connect ", 8) == 0 && strlen(buffer) > 8){	// user requested connection to another user
 				strtok(buffer, " ");
@@ -343,8 +343,8 @@ red7:
 						}
 					} 
 
-					if(self->state == 0){  //CHECK IF I AM FREE
-						if(freeUser(targetName)){      //CHECK IF MY TARGET IS FREE
+					if(self->state == 0){
+						if(freeUser(targetName)){
 							self->target = findTarget(targetName);
 							self->state = 1;
 							self->target->state = 1;
@@ -646,15 +646,11 @@ red0:
 			ret = semop(semFile, &opFile, 0);
 
 			result = checkUsername(aux -> username);
-			// Forse qualche comportamento strano
-			/*
-			* opFile.sem_op = 1;
-			* semop(semFile, &opFile, 0);
-			*/
+
 			if(result){
 				sprintf(text, "Username not available\n");
 				write(aux -> sockCmd, text, strlen(text));
-				
+				memset(aux -> username, 0, 100);
 				opFile.sem_op = 1;
 goup:				ret=semop(semFile, &opFile, 1);
 				if(ret==-1){
@@ -668,10 +664,6 @@ goup:				ret=semop(semFile, &opFile, 1);
 					if(errno==EINTR)goto goup;
 				}
 			} else {
-				/*
-				* opFile.sem_op = -1;
-				* semop(semFile, &opFile, 0);
-				*/
 
 				fseek(f, 0, SEEK_END);
 				fprintf(f, "%s %s\n", aux -> username, aux -> pass);
