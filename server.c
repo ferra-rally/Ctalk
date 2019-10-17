@@ -824,7 +824,7 @@ int main(int argc, char *argv[]){
 				write(client_sockCmd,text,strlen(text));
 			} else {
 				ret = 1;
-				sprintf(text, "\nerror: sockets do not match\n");
+				sprintf(text, "error: sockets do not match\n");
 				write(client_sockCmd, text, strlen(text));
 				write(client_sockMsg, text, strlen(text));
 

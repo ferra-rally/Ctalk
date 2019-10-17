@@ -323,7 +323,11 @@ int main(int argc,char *argv[]){
 
 	read(cmd,buffer,MAXLINE);
 	printf("%s",buffer);
-	memset(buffer,0,sizeof(buffer));
+	if(strncmp(buffer, "error:", 6) == 0){
+		exit(-1);
+	}
+	memset(buffer, 0, sizeof(buffer));
+
 
 
 	logOrReg();
