@@ -13,10 +13,11 @@
 
 #define MAXLINE 1000
 
-int msg, cmd;	// own socket
+int msg, cmd;	// command socket and messaging socjet
 int chat = 0;
 char target[100];
 
+// SIGINT handler
 void handler(int signo){
 
 	char text[MAXLINE];
@@ -27,6 +28,8 @@ void handler(int signo){
 
 }
 
+// unsigned char *str -> string to hash
+// hash function
 unsigned long hash(unsigned char *str){
 	unsigned int result = 5381;
 	unsigned char *p;
@@ -41,6 +44,8 @@ unsigned long hash(unsigned char *str){
 	return result;
 }
 
+// void *param -> not used
+// function that reads commands from the Message socket
 void *readerMsg(void *param){
 	char buffer[MAXLINE];
 	int ret;
@@ -55,6 +60,8 @@ void *readerMsg(void *param){
 	}	
 }
 
+// char *string -> string to check
+// function that check the presence of blanks in a string
 int checkSpaces(char *string){
 	int i;
 	for(i = 0; i < strlen(string); i++){
@@ -66,7 +73,8 @@ int checkSpaces(char *string){
 }
 
 // void *param -> not used
-void *readerCmd(void *param){	// thread used to recieve from the server
+// function that reads commands from the Command socket
+void *readerCmd(void *param){
 
 	char buffer[MAXLINE];
 	int ret;
@@ -92,7 +100,8 @@ void *readerCmd(void *param){	// thread used to recieve from the server
 
 
 // void *param -> not used
-void *writer(void *param){	// thread used to send strings to the server
+// function that send strings to the server
+void *writer(void *param){
 
 	char buffer[MAXLINE]; 
 	int ret;
@@ -144,7 +153,7 @@ void *writer(void *param){	// thread used to send strings to the server
 
 }
 
-
+// function used during register and login procedures
 void logOrReg(){
 
 	char buffer[MAXLINE];
@@ -246,7 +255,7 @@ redUser:
 	}
 }
 
-//argv[1] IP address, argv[2] port
+// argv[1] IP address, argv[2] port
 int main(int argc,char *argv[]){
 
 	struct sockaddr_in server;
@@ -327,8 +336,6 @@ int main(int argc,char *argv[]){
 		exit(-1);
 	}
 	memset(buffer, 0, sizeof(buffer));
-
-
 
 	logOrReg();
 
