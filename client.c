@@ -90,7 +90,7 @@ void *readerCmd(void *param){
 		if(strncmp(buffer,"change",6)==0){
 			chat=0;
 			printf("user disconnected\n");
-		} else if(strncmp(buffer, "quit", 4) == 0){
+		} else if(strncmp(buffer, "quit", 4) == 0 && chat == 0){
 			printf("Server shutdown\nexiting\n");
 			exit(0);
 		}
