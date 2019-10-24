@@ -15,12 +15,11 @@
 
 int msg, cmd;	// command socket and messaging socjet
 int chat = 0;
-char target[100];
 
 // SIGINT handler
 void handler(int signo){
-
 	char text[MAXLINE];
+
 	if(chat) printf("Closing chat\n");
 	sprintf(text, "close");
 	write(cmd, text, strlen(text));
@@ -110,13 +109,13 @@ void *writer(void *param){
 	while(1){
 
 		ret=scanf("%[^\n]",buffer);
-		c=getchar();
-		if(ret==-1){
+		c = getchar();
+		if(ret == -1){
 			printf("scanf error\n");
 			exit(EXIT_FAILURE);
 		}
 
-		if(strcmp(buffer,"quit")==0){	// sending special string to the server and terminating client
+		if(strcmp(buffer, "quit")==0){	// sending special string to the server and terminating client
 			printf("Closing...\n");
 
 			write(cmd,buffer,strlen(buffer));
@@ -248,7 +247,7 @@ redUser:
 		} else if(strcmp(buffer,"quit")==0) {
 			close(cmd);
 			close(msg);
-			printf("Closing all\n");
+			printf("Closing...\n");
 			exit(0);	
 
 		} else printf("Command not recognised\n");
