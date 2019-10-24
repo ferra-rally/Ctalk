@@ -90,7 +90,7 @@ void printUsers(int sockCmd){
 	write(sockCmd, temp, strlen(temp));
 	while(aux -> next != NULL){
 		sprintf(temp, "Name: %s, socket MSG: %d, state: %d\n", aux -> username, aux -> sockMsg,aux -> state); //ADDED USERN AND ANOTHER SOCKET
-		write(sockCmd, temp, strlen(temp));//WRITE ON SOCKET CMD
+		write(sockCmd, temp, strlen(temp));
 		aux = aux -> next;
 	}
 	sprintf(temp, "*****************************\n");
@@ -122,17 +122,17 @@ void printAvailableUsers(int sockCmd,char *name){
 
 // struct user **head -> head of the list
 // char *name -> name of the user to remove
-// function used to remove a user from the server CONTROL ON NAME NOT SOCKET ID
+// function used to remove a user from the server
 void removeUser(struct user **head, char *name){
 	struct user *aux;
 	struct user *prec, *succ;
 	// removing user from the list
 
-	if(strcmp((*head)->username,name)==0){ //CONTROL NAME
+	if(strcmp((*head)->username,name)==0){
 		prec = *head;
 		*head = (*head) -> next;
 		close(prec->sockMsg);  
-		close(prec->sockCmd); //CLOSE TWO SOCKETS
+		close(prec->sockCmd);
 		free(prec);
 		return;
 	}
@@ -141,7 +141,7 @@ void removeUser(struct user **head, char *name){
 	prec = *head;
 	while(aux != NULL){
 		succ = aux -> next;
-		if(strcmp(/*(*head)*/aux->username,name)==0){ //CONTROL NAME
+		if(strcmp(aux->username,name)==0){
 			close(aux->sockCmd);	// closing Command socket
 			close(aux->sockMsg);    // closing Message socket
 			free(aux);	// freeing memory
