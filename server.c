@@ -659,7 +659,7 @@ red0:
 			printf("red password %s\n", aux -> pass);
 
 			opFile.sem_op = -1;
-			ret = semop(semFile, &opFile, 0);
+			ret = semop(semFile, &opFile, 1);
 
 			result = checkUsername(aux -> username);
 
@@ -668,7 +668,7 @@ red0:
 				write(aux -> sockCmd, text, strlen(text));
 				memset(aux -> username, 0, 100);
 				opFile.sem_op = 1;
-goup:				ret=semop(semFile, &opFile, 1);
+goup:				ret = semop(semFile, &opFile, 1);
 				if(ret==-1){
 					if(errno != EINTR){
 					printf("semop error\n");
