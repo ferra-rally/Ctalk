@@ -333,7 +333,7 @@ red2:
 
 			} else if(strcmp(buffer, "help") == 0){	// user requested list of all commands
 
-				sprintf(temp, "========================\ntype:\nlist for list of users in the server\nhelp for help\nconnect [username] to connect to the user\nquit to disconnect from the server\navl for available users\n========================\n\n");
+				sprintf(temp, "========================\ntype:\nlist for list of users in the server\nhelp for help\nconnect [username] to connect to the user\nquit to disconnect from the server\navl for available users\n========================\n");
 
 				write(self->sockCmd, temp, strlen(temp));
 

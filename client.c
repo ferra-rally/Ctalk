@@ -133,11 +133,11 @@ void *writer(void *param){
 
 		}else if(chat){
 			//printf("Sending msg\n");
-			ret=write(msg,buffer,sizeof(buffer));	// sending message
+			ret = write(msg,buffer,sizeof(buffer));	// sending message
 		}
 		else{
 			//printf("Sending cmd\n");
-			ret=write(cmd,buffer,sizeof(buffer));	// sending message
+			ret = write(cmd,buffer,sizeof(buffer));	// sending message
 		}
 
 		if(ret<=0) {
@@ -147,7 +147,7 @@ void *writer(void *param){
 
 
 
-		memset(buffer,0,sizeof(char)*(strlen(buffer)+1));
+		memset(buffer, 0, sizeof(char)*(strlen(buffer)+1));
 
 	}
 
@@ -160,12 +160,12 @@ void logOrReg(){
 	char c;
 
 	while(1){
-		memset(buffer,0,sizeof(buffer));
+		memset(buffer, 0, sizeof(buffer));
 
 		printf("Type reg to register\nType log to login\n");
 		scanf("%[^\n]",buffer);
 		c=getchar();
-		write(cmd,buffer,strlen(buffer));
+		write(cmd, buffer, strlen(buffer));
 
 		if(strcmp(buffer,"reg")==0){
 
@@ -202,24 +202,24 @@ redUser:
 
 			printf("write your username\n");
 
-			scanf("%[^\n]",buffer);
+			scanf("%[^\n]", buffer);
 			c = getchar();
 
-			write(cmd,buffer,strlen(buffer));
+			write(cmd, buffer, strlen(buffer));
 
-			memset(buffer,0,sizeof(buffer));	
+			memset(buffer, 0, sizeof(buffer));	
 			printf("write your password\n");
-			scanf("%[^\n]",buffer);
+			scanf("%[^\n]", buffer);
 			c = getchar();
 
 			sprintf(buffer, "%lu", hash(buffer));
 
-			write(cmd,buffer,strlen(buffer));
-			memset(buffer,0,sizeof(buffer));
+			write(cmd, buffer, strlen(buffer));
+			memset(buffer, 0, sizeof(buffer));
 
-			read(cmd,buffer,MAXLINE);
+			read(cmd, buffer, MAXLINE);
 
-			printf("%s \n",buffer);
+			printf("%s \n", buffer);
 			if(strncmp(buffer, "wrong", 5) == 0 || strncmp(buffer, "already", 7) == 0){
 				printf("Log error\n");
 				exit(-1);
@@ -228,17 +228,17 @@ redUser:
 
 			pthread_t tid;
 
-			if(pthread_create(&tid,NULL,&readerCmd,NULL)!=0){
+			if(pthread_create(&tid, NULL, &readerCmd, NULL) != 0){
 				printf("reader thread creation error\n");
 				exit(EXIT_FAILURE);
 			}
 
-			if(pthread_create(&tid,NULL,&writer,NULL)!=0){
+			if(pthread_create(&tid, NULL, &writer, NULL) != 0){
 				printf("writer thread creation error\n");
 				exit(EXIT_FAILURE);
 			}
 
-			if(pthread_create(&tid,NULL,&readerMsg,NULL)!=0){
+			if(pthread_create(&tid, NULL, &readerMsg, NULL) != 0){
 				printf("reader thread creation error\n");
 				exit(EXIT_FAILURE);
 			}
@@ -292,15 +292,15 @@ int main(int argc,char *argv[]){
 	}
 	printf("Socket creation succesfull\n");
 
-	memset(&server,0,sizeof(server));
-	server.sin_family=AF_INET;
-	server.sin_port=htons(porta);
+	memset(&server, 0, sizeof(server));
+	server.sin_family = AF_INET;
+	server.sin_port = htons(porta);
 
 	printf("Translating IP address...\n");
-	if(inet_aton(argv[1],&server.sin_addr)<=0){
+	if(inet_aton(argv[1], &server.sin_addr) <= 0){
 		printf("Invalid IP\nresolving name...\n");
 
-		if((hn=gethostbyname(argv[1]))==NULL){
+		if((hn=gethostbyname(argv[1])) == NULL){
 			printf("failed to resolve\n");
 			exit(EXIT_FAILURE);
 		}
@@ -310,7 +310,7 @@ int main(int argc,char *argv[]){
 	printf("IP obtained succesfully\n");
 
 	printf("Connecting...\n");
-	if(connect(cmd,(struct sockaddr *)&server,sizeof(server))<0){
+	if(connect(cmd, (struct sockaddr *)&server, sizeof(server)) < 0){
 		printf("connection error\n");
 		exit(EXIT_FAILURE);
 	}
@@ -318,11 +318,11 @@ int main(int argc,char *argv[]){
 	sprintf(temp, "sockCmd"); // control string to check if the two socket belong to the same client
 	write(cmd, temp, strlen(temp));
 
-	read(cmd,buffer,MAXLINE);
-	printf("%s",buffer);
-	memset(buffer,0,sizeof(buffer));
+	read(cmd, buffer, MAXLINE);
+	printf("%s", buffer);
+	memset(buffer, 0, sizeof(buffer));
 
-	if(connect(msg,(struct sockaddr *)&server,sizeof(server))<0){
+	if(connect(msg, (struct sockaddr *)&server, sizeof(server)) < 0){
 		printf("connection error\n");
 		exit(EXIT_FAILURE);
 	}
@@ -331,7 +331,7 @@ int main(int argc,char *argv[]){
 	write(msg, temp, strlen(temp));
 
 	read(cmd,buffer,MAXLINE);
-	printf("%s",buffer);
+	printf("%s", buffer);
 	if(strncmp(buffer, "error:", 6) == 0){
 		exit(-1);
 	}
